@@ -118,4 +118,8 @@ public class LoadedPlugin {
   public PluginManager getPluginManager(){
     return this.mPluginManager;
   }
+
+  public String getPackageName(){
+    return this.mPackage.packageName;
+  }
 }

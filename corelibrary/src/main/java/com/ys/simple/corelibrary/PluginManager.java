@@ -1,6 +1,13 @@
 package com.ys.simple.corelibrary;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.InputStream;
 import java.lang.reflect.Proxy;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import android.app.ActivityThread;
 import android.app.Instrumentation;
@@ -11,6 +18,7 @@ import android.os.Handler;
 import com.ys.simple.corelibrary.hook.ActivityThreadHandlerCallback;
 import com.ys.simple.corelibrary.hook.IActivityManagerHandler;
 import com.ys.simple.corelibrary.hook.VAInstrumentation;
+import com.ys.simple.corelibrary.plugin.LoadedPlugin;
 import com.ys.simple.corelibrary.utils.Reflector;
 
 /**
@@ -24,6 +32,10 @@ public class PluginManager {
   private Context mContext;
 
   private Instrumentation mInstrumentation;
+
+  // 包名 : LoadedPlugin
+  private final Map<String, LoadedPlugin> mPlugins = new ConcurrentHashMap<>();
+  private List<Callback> mCallbacks = new ArrayList<>();
 
   public static PluginManager getInstance(Context context){
     if(sInstance == null){
@@ -79,7 +91,56 @@ public class PluginManager {
     Reflector.with(gDefaultObj).field("mInstance").set(proxy);
   }
 
+  public void loadPlugin(File apk) throws Exception{
+    if(apk == null){
+      throw new IllegalArgumentException("error: apk is null");
+    }
+    if(!apk.exists()){
+      // throw the FileNotFoundException by opening a stream.
+      InputStream in = new FileInputStream(apk);
+      in.close();
+    }
+
+    LoadedPlugin loadedPlugin = new LoadedPlugin(this, this.mContext, apk);
+    if(loadedPlugin == null){
+      throw new IllegalArgumentException("error: loaded plugin is null");
+    }
+
+    this.mPlugins.put(loadedPlugin.getPackageName(), loadedPlugin);
+    synchronized (mCallbacks){
+      for(int i = 0; i < mCallbacks.size(); i++){
+        mCallbacks.get(i).onAddedLoadedPlugin(loadedPlugin);
+      }
+    }
+  }
+
+  public LoadedPlugin getLoadedPlugin(String packageName){
+    return this.mPlugins.get(packageName);
+  }
+
+  public void addCallback(Callback callback){
+    if(callback == null){
+      return;
+    }
+    synchronized (mCallbacks){
+      if(mCallbacks.contains(callback)){
+        throw new RuntimeException("Already added " + callback + "!");
+      }
+      mCallbacks.add(callback);
+    }
+  }
+
+  public void removeCallback(Callback callback){
+    synchronized (mCallbacks){
+      mCallbacks.remove(callback);
+    }
+  }
+
   public Context getHostContext(){
     return this.mContext;
+  }
+
+  public interface Callback{
+    void onAddedLoadedPlugin(LoadedPlugin plugin);
   }
 }
