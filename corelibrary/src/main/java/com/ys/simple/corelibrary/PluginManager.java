@@ -12,13 +12,15 @@ import java.util.concurrent.ConcurrentHashMap;
 import android.app.ActivityThread;
 import android.app.Instrumentation;
 import android.content.Context;
+import android.content.Intent;
+import android.content.pm.ResolveInfo;
 import android.os.Build;
 import android.os.Handler;
 
-import com.ys.simple.corelibrary.hook.ActivityThreadHandlerCallback;
 import com.ys.simple.corelibrary.hook.IActivityManagerHandler;
 import com.ys.simple.corelibrary.hook.VAInstrumentation;
 import com.ys.simple.corelibrary.plugin.LoadedPlugin;
+import com.ys.simple.corelibrary.utils.ComponentsHandler;
 import com.ys.simple.corelibrary.utils.Reflector;
 
 /**
@@ -30,10 +32,12 @@ public class PluginManager {
   private static PluginManager sInstance;
 
   private Context mContext;
+  private ComponentsHandler mComponentsHandler;
 
   private Instrumentation mInstrumentation;
 
   // 包名 : LoadedPlugin
+  // 所以插件的包名不能有重复
   private final Map<String, LoadedPlugin> mPlugins = new ConcurrentHashMap<>();
   private List<Callback> mCallbacks = new ArrayList<>();
 
@@ -55,6 +59,8 @@ public class PluginManager {
     }catch (Exception e){
       e.printStackTrace();
     }
+
+    mComponentsHandler = new ComponentsHandler(this);
   }
 
   private void hookCurrentProcess() throws Exception{
@@ -65,11 +71,11 @@ public class PluginManager {
   private void hookInstrumentationAndHandler() throws Exception{
     ActivityThread activityThread = ActivityThread.currentActivityThread();
     Instrumentation baseInstrumentation = activityThread.getInstrumentation();
-    VAInstrumentation vaInstrumentation = new VAInstrumentation(baseInstrumentation);
+    VAInstrumentation vaInstrumentation = new VAInstrumentation(this, baseInstrumentation);
     Reflector.with(activityThread).field("mInstrumentation").set(vaInstrumentation);
 
     Handler mainHandler = Reflector.with(activityThread).method("getHandler").call();
-    Reflector.with(mainHandler).field("mCallback").set(new ActivityThreadHandlerCallback());
+    Reflector.with(mainHandler).field("mCallback").set(vaInstrumentation);
     this.mInstrumentation = vaInstrumentation;
   }
 
@@ -138,6 +144,20 @@ public class PluginManager {
 
   public Context getHostContext(){
     return this.mContext;
+  }
+
+  public ComponentsHandler getComponentsHandler(){
+    return mComponentsHandler;
+  }
+
+  public ResolveInfo resolveActivity(Intent intent){
+    for(LoadedPlugin loadedPlugin : mPlugins.values()){
+      ResolveInfo resolveInfo = loadedPlugin.resolveActivity(intent);
+      if(null != resolveInfo){
+        return resolveInfo;
+      }
+    }
+    return null;
   }
 
   public interface Callback{

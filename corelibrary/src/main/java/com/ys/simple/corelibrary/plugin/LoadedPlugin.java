@@ -1,18 +1,23 @@
 package com.ys.simple.corelibrary.plugin;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import android.app.Application;
 import android.content.ComponentName;
+import android.content.ContentResolver;
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageParser;
 import android.content.pm.PermissionInfo;
 import android.content.pm.ProviderInfo;
+import android.content.pm.ResolveInfo;
 import android.content.pm.ServiceInfo;
 import android.content.res.AssetManager;
 import android.content.res.Resources;
@@ -113,6 +118,53 @@ public class LoadedPlugin {
 
   protected File getDir(Context context, String name) {
     return context.getDir(name, Context.MODE_PRIVATE);
+  }
+
+  public ResolveInfo resolveActivity(Intent intent){
+    List<ResolveInfo> query = queryIntentActivities(intent);
+    if(query == null || query.isEmpty()){
+      return null;
+    }
+    return query.get(0);
+  }
+
+  public List<ResolveInfo> queryIntentActivities(Intent intent){
+    ComponentName component = intent.getComponent();
+    List<ResolveInfo> resolveInfos = new ArrayList<>();
+    // 插件的ContentResolver
+    ContentResolver resolver = mPluginContext.getContentResolver();
+
+    for(PackageParser.Activity activity : mPackage.activities){
+      if(match(activity, component)){
+        // new一个ResolveInfo，填充ActivityInfo
+        ResolveInfo resolveInfo = new ResolveInfo();
+        resolveInfo.activityInfo = activity.info;
+        resolveInfos.add(resolveInfo);
+      }else if(component == null){
+        // 使用intentInfo去match
+        for(PackageParser.ActivityIntentInfo intentInfo : activity.intents){
+          if(intentInfo.match(resolver, intent, true, TAG) >= 0){
+            ResolveInfo resolveInfo = new ResolveInfo();
+            resolveInfo.activityInfo = activity.info;
+            resolveInfos.add(resolveInfo);
+          }
+        }
+      }
+    }
+    return resolveInfos;
+  }
+
+  private boolean match(PackageParser.Component component, ComponentName target){
+    ComponentName source = component.getComponentName();
+    if(source == target) return true;
+    if(source != null && target != null
+        && source.getClassName().equals(target.getClassName())
+        && (source.getPackageName().equals(target.getPackageName())
+        // ???
+        || mHostContext.getPackageName().equals(target.getPackageName()))){
+      return true;
+    }
+    return false;
   }
 
   public PluginManager getPluginManager(){
