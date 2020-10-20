@@ -21,6 +21,11 @@ android {
         }
     }
 
+    compileOptions {
+        targetCompatibility SOURCE_COMPATIBILITY
+        sourceCompatibility SOURCE_COMPATIBILITY
+    }
+
 }
 
 dependencies {
@@ -31,5 +36,5 @@ dependencies {
     androidTestImplementation 'androidx.test.ext:junit:1.1.2'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.3.0'
 
-    compileOnly project(path: ':AndroidStub')
+    compileOnly project(':AndroidStub')
 }

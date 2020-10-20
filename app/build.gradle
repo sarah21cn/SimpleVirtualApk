@@ -21,10 +21,16 @@ android {
         }
     }
 
+    compileOptions {
+        targetCompatibility SOURCE_COMPATIBILITY
+        sourceCompatibility SOURCE_COMPATIBILITY
+    }
+
 }
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
+    implementation project(":corelibrary")
 
     implementation 'androidx.appcompat:appcompat:1.2.0'
     implementation 'androidx.constraintlayout:constraintlayout:2.0.2'

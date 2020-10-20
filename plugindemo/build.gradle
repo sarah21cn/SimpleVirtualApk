@@ -21,6 +21,10 @@ android {
         }
     }
 
+    compileOptions {
+        targetCompatibility SOURCE_COMPATIBILITY
+        sourceCompatibility SOURCE_COMPATIBILITY
+    }
 }
 
 dependencies {

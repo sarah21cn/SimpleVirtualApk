@@ -15,6 +15,8 @@
  */
 package android.databinding;
 import android.view.View;
+import androidx.databinding.ViewDataBinding;
+
 /**
  * This class will be stripped from the jar and then replaced by the annotation processor
  * as part of the code generation step. This class's existence is just to ensure that

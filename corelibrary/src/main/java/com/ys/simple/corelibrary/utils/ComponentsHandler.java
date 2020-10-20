@@ -49,8 +49,7 @@ public class ComponentsHandler {
     if(!targetPackageName.equals(mContext.getPackageName())
         && mPluginManager.getLoadedPlugin(targetPackageName) != null){
       intent.putExtra(Constants.KEY_IS_PLUGIN, true);
-      intent.putExtra(Constants.KEY_TARGET_PACKAGE, targetPackageName);
-      intent.putExtra(Constants.KEY_TARGET_ACTIVITY, targetClassName);
+      intent.putExtra(Constants.EXTRA_TARGET_INTENT, intent);
       dispatchStubActivity(intent);
     }
   }
