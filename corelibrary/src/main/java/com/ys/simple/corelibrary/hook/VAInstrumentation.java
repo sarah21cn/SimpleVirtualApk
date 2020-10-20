@@ -1,11 +1,14 @@
 package com.ys.simple.corelibrary.hook;
 
+import java.lang.ref.WeakReference;
+import java.util.ArrayList;
 import java.util.List;
 
 import android.app.Activity;
 import android.app.ActivityThread;
 import android.app.Fragment;
 import android.app.Instrumentation;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
@@ -17,6 +20,7 @@ import android.util.Log;
 import androidx.annotation.NonNull;
 
 import com.ys.simple.corelibrary.PluginManager;
+import com.ys.simple.corelibrary.plugin.LoadedPlugin;
 import com.ys.simple.corelibrary.utils.Constants;
 import com.ys.simple.corelibrary.utils.Reflector;
 
@@ -26,6 +30,9 @@ import com.ys.simple.corelibrary.utils.Reflector;
 public class VAInstrumentation extends Instrumentation implements Handler.Callback{
 
   private static final String TAG = "VAInstrumentation";
+
+  // 缓存
+  protected final ArrayList<WeakReference<Activity>> mActivities = new ArrayList<>();
 
   private PluginManager mPluginManager;
   private Instrumentation mBase;
@@ -40,7 +47,23 @@ public class VAInstrumentation extends Instrumentation implements Handler.Callba
 
   @Override
   public Activity newActivity(ClassLoader cl, String className, Intent intent) throws ClassNotFoundException, IllegalAccessException, InstantiationException {
-    injectIntent(intent);
+    try{
+      cl.loadClass(className);
+      Log.i(TAG, String.format("newActivity[%s]", className));
+    }catch (ClassNotFoundException e){
+      ComponentName component = intent.getComponent();
+
+      if(component != null){
+        String targetClassName = component.getClassName();
+        LoadedPlugin loadedPlugin = mPluginManager.getLoadedPlugin(component.getPackageName());
+        if(loadedPlugin != null){
+          Activity activity = mBase.newActivity(loadedPlugin.getClassLoader(), targetClassName, intent);
+          activity.setIntent(intent);
+          Reflector.QuietReflector.with(activity).field("mResources").set(loadedPlugin.getResources());
+          return activity;
+        }
+      }
+    }
     return super.newActivity(cl, className, intent);
   }
 

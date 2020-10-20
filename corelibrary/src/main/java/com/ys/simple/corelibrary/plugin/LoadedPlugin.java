@@ -174,4 +174,12 @@ public class LoadedPlugin {
   public String getPackageName(){
     return this.mPackage.packageName;
   }
+
+  public ClassLoader getClassLoader(){
+    return mClassLoader;
+  }
+
+  public Resources getResources(){
+    return mResources;
+  }
 }

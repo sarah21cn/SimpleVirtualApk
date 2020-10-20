@@ -17,6 +17,7 @@ import android.content.pm.ResolveInfo;
 import android.os.Build;
 import android.os.Handler;
 
+import com.ys.simple.corelibrary.hook.ActivityThreadHandlerCallback;
 import com.ys.simple.corelibrary.hook.IActivityManagerHandler;
 import com.ys.simple.corelibrary.hook.VAInstrumentation;
 import com.ys.simple.corelibrary.plugin.LoadedPlugin;
@@ -66,6 +67,7 @@ public class PluginManager {
   private void hookCurrentProcess() throws Exception{
     hookInstrumentationAndHandler();
     hookActivityManagerService();
+    hookActivityThreadCallback();
   }
 
   private void hookInstrumentationAndHandler() throws Exception{
@@ -74,12 +76,13 @@ public class PluginManager {
     VAInstrumentation vaInstrumentation = new VAInstrumentation(this, baseInstrumentation);
     Reflector.with(activityThread).field("mInstrumentation").set(vaInstrumentation);
 
-    Handler mainHandler = Reflector.with(activityThread).method("getHandler").call();
-    Reflector.with(mainHandler).field("mCallback").set(vaInstrumentation);
+//    Handler mainHandler = Reflector.with(activityThread).method("getHandler").call();
+//    Reflector.with(mainHandler).field("mCallback").set(vaInstrumentation);
     this.mInstrumentation = vaInstrumentation;
   }
 
-  public static void hookActivityManagerService() throws Exception{
+
+  public void hookActivityManagerService() throws Exception{
     Object gDefaultObj = null;
     // API 29 及以后hook android.app.ActivityTaskManager.IActivityTaskManagerSingleton
     // API 26 及以后hook android.app.ActivityManager.IActivityManagerSingleton
@@ -93,8 +96,14 @@ public class PluginManager {
     }
     Object amsObj = Reflector.with(gDefaultObj).field("mInstance").get();
     Object proxy = Proxy.newProxyInstance(Thread.currentThread().getContextClassLoader(),
-        amsObj.getClass().getInterfaces(), new IActivityManagerHandler(amsObj));
+        amsObj.getClass().getInterfaces(), new IActivityManagerHandler(this, amsObj));
     Reflector.with(gDefaultObj).field("mInstance").set(proxy);
+  }
+
+  public void hookActivityThreadCallback() throws Exception {
+    ActivityThread activityThread = ActivityThread.currentActivityThread();
+    Handler handler = Reflector.with(activityThread).field("mH").get();
+    Reflector.with(handler).field("mCallback").set(new ActivityThreadHandlerCallback(handler));
   }
 
   public void loadPlugin(File apk) throws Exception{
