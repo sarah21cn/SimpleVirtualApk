@@ -42,6 +42,9 @@ public class IActivityManagerHandler implements InvocationHandler {
       }
       intent = (Intent) args[index];
 
+      // 将隐式intent转化为显式intent
+      mPluginManager.getComponentsHandler().transformIntentToExplicitAsNeeded(intent);
+
       Intent newIntent = new Intent();
       String stubPackage = mPluginManager.getHostContext().getPackageName();
       ComponentName componentName = new ComponentName(stubPackage, StubActivity.class.getName());

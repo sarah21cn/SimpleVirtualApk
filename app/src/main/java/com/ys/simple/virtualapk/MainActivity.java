@@ -52,6 +52,10 @@ public class MainActivity extends AppCompatActivity {
         startActivity(intent);
         break;
       case R.id.implicit_btn:
+        intent = new Intent();
+        intent.setPackage("com.ys.simple.plugindemo");
+        intent.setAction(Intent.ACTION_MAIN);
+        startActivity(intent);
         break;
     }
   }
