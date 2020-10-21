@@ -28,7 +28,7 @@ public class ComponentsHandler {
   public Intent transformIntentToExplicitAsNeeded(Intent intent){
     Log.d(TAG, "transform intent, context packageName: " + mContext.getPackageName());
     ComponentName component = intent.getComponent();
-    // mContext为hostContext，？？？
+    // component为空，且非host
     if(component == null || component.getPackageName().equals(mContext.getPackageName())){
       ResolveInfo info = mPluginManager.resolveActivity(intent);
       if(info != null && info.activityInfo != null){

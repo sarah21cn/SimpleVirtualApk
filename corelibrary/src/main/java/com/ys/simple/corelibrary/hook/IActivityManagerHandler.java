@@ -45,15 +45,18 @@ public class IActivityManagerHandler implements InvocationHandler {
       // 将隐式intent转化为显式intent
       mPluginManager.getComponentsHandler().transformIntentToExplicitAsNeeded(intent);
 
-      Intent newIntent = new Intent();
-      String stubPackage = mPluginManager.getHostContext().getPackageName();
-      ComponentName componentName = new ComponentName(stubPackage, StubActivity.class.getName());
-      newIntent.setComponent(componentName);
+      if(intent.getComponent() != null
+          && !intent.getComponent().getPackageName().equals(mPluginManager.getHostContext().getPackageName())){
+        Intent newIntent = new Intent();
+        String stubPackage = mPluginManager.getHostContext().getPackageName();
+        ComponentName componentName = new ComponentName(stubPackage, StubActivity.class.getName());
+        newIntent.setComponent(componentName);
 
-      // 将之前的intent存起来
-      newIntent.putExtra(Constants.EXTRA_TARGET_INTENT, intent);
-      args[index] = newIntent;
-      Log.d(TAG, "hook succeed");
+        // 将之前的intent存起来
+        newIntent.putExtra(Constants.EXTRA_TARGET_INTENT, intent);
+        args[index] = newIntent;
+        Log.d(TAG, "hook succeed");
+      }
 
       // todo
 //      mPluginManager.getComponentsHandler().transformIntentToExplicitAsNeeded(intent);

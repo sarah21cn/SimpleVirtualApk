@@ -20,22 +20,25 @@ public class MainActivity extends AppCompatActivity {
 
   private static final String TAG = "MainActivity";
 
+  private PluginManager mPluginManager;
+
   @Override
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     setContentView(R.layout.activity_main);
+
+    mPluginManager = PluginManager.getInstance(this);
   }
 
   public void onClick(View view){
     switch (view.getId()){
       case R.id.load_btn:
-        PluginManager pluginManager = PluginManager.getInstance(this);
         final String path = getFilesDir().getPath() + "/plugindemo-debug.apk";
         File file = new File(path);
         if(file.exists()){
           try{
-            pluginManager.loadPlugin(file);
-            if(pluginManager.getLoadedPlugin("com.ys.simple.plugindemo") != null){
+            mPluginManager.loadPlugin(file);
+            if(mPluginManager.getLoadedPlugin("com.ys.simple.plugindemo") != null){
               Log.d(TAG, "load plugin succeed");
             }
           }catch (Exception e){
@@ -51,10 +54,19 @@ public class MainActivity extends AppCompatActivity {
         intent.setComponent(componentName);
         startActivity(intent);
         break;
-      case R.id.implicit_btn:
+      case R.id.start_implicit_btn:
         intent = new Intent();
         intent.setPackage("com.ys.simple.plugindemo");
         intent.setAction(Intent.ACTION_MAIN);
+        startActivity(intent);
+        break;
+      case R.id.start_host_btn:
+        intent = new Intent(this, SecondActivity.class);
+        startActivity(intent);
+        break;
+      case R.id.start_host_implicit_btn:
+        intent = new Intent();
+        intent.setAction("second");
         startActivity(intent);
         break;
     }

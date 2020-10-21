@@ -57,7 +57,9 @@ public class ActivityThreadHandlerCallback implements Handler.Callback {
       if(launchActivityItemClz.isInstance(list.get(0))) {
         Intent intent = Reflector.with(list.get(0)).field("mIntent").get();
         Intent target = intent.getParcelableExtra(Constants.EXTRA_TARGET_INTENT);
-        intent.setComponent(target.getComponent());
+        if(target != null){
+          intent.setComponent(target.getComponent());
+        }
       }
     }catch (Reflector.ReflectedException e){
       e.printStackTrace();

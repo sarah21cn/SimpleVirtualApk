@@ -64,7 +64,10 @@ public class VAInstrumentation extends Instrumentation implements Handler.Callba
         }
       }
     }
-    return super.newActivity(cl, className, intent);
+    // Resource替换回来
+    Activity activity = super.newActivity(cl, className, intent);
+    Reflector.QuietReflector.with(activity).field("mResources").set(mPluginManager.getHostContext().getResources());
+    return activity;
   }
 
 //  @Override
