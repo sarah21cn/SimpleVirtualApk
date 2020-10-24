@@ -27,8 +27,30 @@ android {
     }
 }
 
+android.applicationVariants.all { variant ->
+    variant.assemble.doLast {
+        def apkFile = variant.outputs[0].outputFile
+        try {
+            exec {
+                ExecSpec execSpec ->
+                    executable 'bash'
+                    args '-c', "adb push ${apkFile} /data/data/com.ys.simple.virtualapk/files/plugindemo-debug.apk"
+            }
+            println "install success"
+        } catch (Exception e) {
+            println "install failed"
+        }
+    }
+
+    variant.outputs.each { output ->
+
+    }
+
+}
+
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
+    implementation project(":common")
 
     implementation 'androidx.appcompat:appcompat:1.2.0'
     implementation 'androidx.constraintlayout:constraintlayout:2.0.2'

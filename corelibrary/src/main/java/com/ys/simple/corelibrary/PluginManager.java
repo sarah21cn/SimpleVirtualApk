@@ -133,6 +133,12 @@ public class PluginManager {
     return this.mPlugins.get(packageName);
   }
 
+  public List<LoadedPlugin> getAllLoadedPlugins(){
+    List<LoadedPlugin> list = new ArrayList<>();
+    list.addAll(mPlugins.values());
+    return list;
+  }
+
   public void addCallback(Callback callback){
     if(callback == null){
       return;

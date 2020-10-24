@@ -40,6 +40,7 @@ public class LoadedPlugin {
   protected Context mHostContext;
   protected Context mPluginContext;
   //
+  protected String mLocation;
   protected PackageParser.Package mPackage;
   protected PackageInfo mPackageInfo;
   protected Resources mResources;
@@ -56,6 +57,7 @@ public class LoadedPlugin {
   public LoadedPlugin(PluginManager pluginManager, Context context, File apk) throws Exception{
     this.mPluginManager = pluginManager;
     this.mHostContext = context;
+    this.mLocation = apk.getAbsolutePath();
 
     this.mPackage = PackageParserCompat.parsePackage(context, apk, PackageParser.PARSE_MUST_BE_APK);
     this.mPackage.applicationInfo.metaData = this.mPackage.mAppMetaData;
@@ -91,13 +93,13 @@ public class LoadedPlugin {
   }
 
   private Resources createResources(Context context, String packageName, File apk) throws Exception{
-//    if(Constants.COMBINE_RESOURCES){
-//
-//    }else{
+    if(Constants.COMBINE_RESOURCES){
+      return ResourcesManager.createResources(context, packageName, apk);
+    }else{
       Resources hostResource = context.getResources();
       AssetManager assetManager = createAssetManager(apk);
       return new Resources(assetManager, hostResource.getDisplayMetrics(), hostResource.getConfiguration());
-//    }
+    }
   }
 
   private AssetManager createAssetManager(File apk) throws Exception{
@@ -181,5 +183,13 @@ public class LoadedPlugin {
 
   public Resources getResources(){
     return mResources;
+  }
+
+  public String getLocation(){
+    return mLocation;
+  }
+
+  public void updateResources(Resources newResources){
+    this.mResources = newResources;
   }
 }
