@@ -42,7 +42,7 @@ public class IActivityManagerHandler implements InvocationHandler {
       }
       intent = (Intent) args[index];
 
-      // 将隐式intent转化为显式intent
+      // 将插件的隐式intent转化为显式intent，host的intent不变
       mPluginManager.getComponentsHandler().transformIntentToExplicitAsNeeded(intent);
 
       if(intent.getComponent() != null
@@ -53,18 +53,11 @@ public class IActivityManagerHandler implements InvocationHandler {
         newIntent.setComponent(componentName);
 
         // 将之前的intent存起来
+        newIntent.putExtra(Constants.KEY_IS_PLUGIN, true);
         newIntent.putExtra(Constants.EXTRA_TARGET_INTENT, intent);
         args[index] = newIntent;
         Log.d(TAG, "hook succeed");
       }
-
-      // todo
-//      mPluginManager.getComponentsHandler().transformIntentToExplicitAsNeeded(intent);
-//      if(intent.getComponent() != null){
-//        Log.i(TAG, String.format("execStartActivity[%s : %s]", intent.getComponent().getPackageName(),
-//            intent.getComponent().getClassName()));
-//        this.mPluginManager.getComponentsHandler().markIntentIfNeeded(intent);
-//      }
       return method.invoke(mBase, args);
     }
 
