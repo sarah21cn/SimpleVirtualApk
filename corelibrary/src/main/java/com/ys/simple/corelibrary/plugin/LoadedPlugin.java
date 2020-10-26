@@ -244,4 +244,8 @@ public class LoadedPlugin {
   public void updateResources(Resources newResources){
     this.mResources = newResources;
   }
+
+  public ActivityInfo getActivityInfo(ComponentName componentName){
+    return mActivityInfos.get(componentName);
+  }
 }

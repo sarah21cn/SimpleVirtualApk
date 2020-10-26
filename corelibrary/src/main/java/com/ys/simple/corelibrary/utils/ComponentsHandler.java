@@ -3,11 +3,14 @@ package com.ys.simple.corelibrary.utils;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.ActivityInfo;
 import android.content.pm.ResolveInfo;
 import android.util.Log;
 
 import com.ys.simple.corelibrary.PluginManager;
 import com.ys.simple.corelibrary.activity.StubActivity;
+import com.ys.simple.corelibrary.plugin.LoadedPlugin;
+import com.ys.simple.corelibrary.plugin.StubActivityInfo;
 
 /**
  * Created by yinshan on 2020/10/19.
@@ -19,6 +22,7 @@ public class ComponentsHandler {
   // host context
   private Context mContext;
   private PluginManager mPluginManager;
+  private StubActivityInfo mStubActivityInfo = new StubActivityInfo();
 
   public ComponentsHandler(PluginManager pluginManager) {
     mPluginManager = pluginManager;
@@ -57,5 +61,16 @@ public class ComponentsHandler {
   private void dispatchStubActivity(Intent intent){
     ComponentName componentName = new ComponentName(mContext.getPackageName(), StubActivity.class.getName());
     intent.setComponent(componentName);
+  }
+
+  public String getStubActivityClass(Intent intent){
+    final ComponentName componentName = intent.getComponent();
+    LoadedPlugin loadedPlugin = mPluginManager.getLoadedPlugin(componentName.getPackageName());
+    ActivityInfo activityInfo = loadedPlugin.getActivityInfo(componentName);
+    if(activityInfo != null){
+      int launchMode = activityInfo.launchMode;
+      return mStubActivityInfo.getStubActivity(componentName.getClassName(), launchMode, null);
+    }
+    return StubActivity.class.getName();
   }
 }

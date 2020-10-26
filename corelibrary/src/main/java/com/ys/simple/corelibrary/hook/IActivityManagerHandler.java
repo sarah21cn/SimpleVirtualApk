@@ -49,7 +49,8 @@ public class IActivityManagerHandler implements InvocationHandler {
           && !intent.getComponent().getPackageName().equals(mPluginManager.getHostContext().getPackageName())){
         Intent newIntent = new Intent();
         String stubPackage = mPluginManager.getHostContext().getPackageName();
-        ComponentName componentName = new ComponentName(stubPackage, StubActivity.class.getName());
+        ComponentName componentName = new ComponentName(stubPackage,
+            mPluginManager.getComponentsHandler().getStubActivityClass(intent));
         newIntent.setComponent(componentName);
 
         // 将之前的intent存起来
