@@ -52,9 +52,9 @@ class ResourcesManager {
     private static Configuration mDefaultConfiguration;
     
     public static synchronized Resources createResources(Context hostContext, String packageName, File apk) throws Exception {
-//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-//            return createResourcesForN(hostContext, packageName, apk);
-//        }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            return createResourcesForN(hostContext, packageName, apk);
+        }
         
         Resources resources = ResourcesManager.createResourcesSimple(hostContext, apk.getAbsolutePath());
         ResourcesManager.hookResources(hostContext, resources);

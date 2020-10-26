@@ -1,8 +1,10 @@
 package com.ys.simple.corelibrary.hook;
 
 import android.app.Activity;
+import android.app.Application;
 import android.app.Instrumentation;
 import android.content.ComponentName;
+import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
 
@@ -32,6 +34,7 @@ public class VAInstrumentation extends Instrumentation {
       cl.loadClass(className);
       Log.i(TAG, String.format("newActivity[%s]", className));
     } catch (ClassNotFoundException e) {
+      Log.i(TAG, className + " not found");
       ComponentName component = intent.getComponent();
 
       if (component != null) {
@@ -41,6 +44,7 @@ public class VAInstrumentation extends Instrumentation {
           Activity activity =
               mBase.newActivity(loadedPlugin.getClassLoader(), targetClassName, intent);
           activity.setIntent(intent);
+          // 替换Activity的Resources
           Reflector.QuietReflector.with(activity).field("mResources")
               .set(loadedPlugin.getResources());
           return activity;
@@ -89,4 +93,12 @@ public class VAInstrumentation extends Instrumentation {
       this.mPluginManager.getComponentsHandler().markIntentIfNeeded(intent);
     }
   }
+
+  @Override
+  public Application newApplication(ClassLoader cl, String className, Context context)
+      throws ClassNotFoundException, IllegalAccessException, InstantiationException {
+    return mBase.newApplication(cl, className, context);
+  }
+
+
 }

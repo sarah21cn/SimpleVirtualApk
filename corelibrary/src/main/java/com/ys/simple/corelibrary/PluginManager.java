@@ -139,6 +139,10 @@ public class PluginManager {
     return list;
   }
 
+  public Instrumentation getInstrumentation(){
+    return mInstrumentation;
+  }
+
   public void addCallback(Callback callback){
     if(callback == null){
       return;

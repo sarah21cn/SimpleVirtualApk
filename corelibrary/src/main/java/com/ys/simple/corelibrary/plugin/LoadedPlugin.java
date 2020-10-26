@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Map;
 
 import android.app.Application;
+import android.app.Instrumentation;
 import android.content.ComponentName;
 import android.content.ContentResolver;
 import android.content.Context;
@@ -23,9 +24,12 @@ import android.content.res.AssetManager;
 import android.content.res.Resources;
 
 import com.ys.simple.corelibrary.PluginManager;
+import com.ys.simple.corelibrary.utils.ActivityLifecycleCallbacksProxy;
 import com.ys.simple.corelibrary.utils.Constants;
+import com.ys.simple.corelibrary.utils.DexUtil;
 import com.ys.simple.corelibrary.utils.PackageParserCompat;
 import com.ys.simple.corelibrary.utils.Reflector;
+import com.ys.simple.corelibrary.utils.RunUtil;
 
 import dalvik.system.DexClassLoader;
 
@@ -83,6 +87,47 @@ public class LoadedPlugin {
     this.mPackageInfo.activities = activityInfos.values().toArray(new ActivityInfo[activityInfos.size()]);
 
     // ...
+
+    // invokeApplication();
+  }
+
+  private void invokeApplication() throws Exception{
+    final Exception[] temp = new Exception[1];
+    // make sure application's callback is run on ui thread.
+    RunUtil.runOnUiThread(new Runnable() {
+      @Override
+      public void run() {
+        if (mApplication != null) {
+          return;
+        }
+        try {
+          mApplication = makeApplication(false, mPluginManager.getInstrumentation());
+        } catch (Exception e) {
+          temp[0] = e;
+        }
+      }
+    }, true);
+
+    if (temp[0] != null) {
+      throw temp[0];
+    }
+  }
+
+  protected Application makeApplication(boolean forceDefaultAppClass, Instrumentation instrumentation) throws Exception {
+    if (null != this.mApplication) {
+      return this.mApplication;
+    }
+
+    String appClass = this.mPackage.applicationInfo.className;
+    if (forceDefaultAppClass || null == appClass) {
+      appClass = "android.app.Application";
+    }
+
+    this.mApplication = instrumentation.newApplication(this.mClassLoader, appClass, this.getPluginContext());
+    // inject activityLifecycleCallbacks of the host application
+    mApplication.registerActivityLifecycleCallbacks(new ActivityLifecycleCallbacksProxy());
+    instrumentation.callApplicationOnCreate(this.mApplication);
+    return this.mApplication;
   }
 
   private PluginContext createPluginContext(Context context){
@@ -93,13 +138,13 @@ public class LoadedPlugin {
   }
 
   private Resources createResources(Context context, String packageName, File apk) throws Exception{
-    if(Constants.COMBINE_RESOURCES){
-      return ResourcesManager.createResources(context, packageName, apk);
-    }else{
+//    if(Constants.COMBINE_RESOURCES){
+//      return ResourcesManager.createResources(context, packageName, apk);
+//    }else{
       Resources hostResource = context.getResources();
       AssetManager assetManager = createAssetManager(apk);
       return new Resources(assetManager, hostResource.getDisplayMetrics(), hostResource.getConfiguration());
-    }
+//    }
   }
 
   private AssetManager createAssetManager(File apk) throws Exception{
@@ -115,6 +160,9 @@ public class LoadedPlugin {
     // 创建一个DexClassLoader
     // 此处也可以自定义ClassLoader，重写findClass等方法
     DexClassLoader loader = new DexClassLoader(apk.getAbsolutePath(), dexOutputPath, null, parent);
+    if(Constants.COMBINE_CLASSLOADER){
+      DexUtil.insertDex(loader, parent);
+    }
     return loader;
   }
 
@@ -187,6 +235,10 @@ public class LoadedPlugin {
 
   public String getLocation(){
     return mLocation;
+  }
+
+  public Context getPluginContext(){
+    return mPluginContext;
   }
 
   public void updateResources(Resources newResources){
