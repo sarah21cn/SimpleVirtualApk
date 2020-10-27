@@ -3,7 +3,7 @@
   
   <application>
     <!-- 暂时只使用一个替代Activity -->
-    <activity android:name=".activity.StubActivity" android:launchMode="standard"/>
+    <activity android:name=".delegate.StubActivity" android:launchMode="standard"/>
 
     <!-- 各种launchMode的Activity -->
     <activity android:exported="false" android:name=".A$1" android:launchMode="standard"/>

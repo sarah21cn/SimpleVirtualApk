@@ -44,9 +44,8 @@ public class VAInstrumentation extends Instrumentation {
           Activity activity =
               mBase.newActivity(loadedPlugin.getClassLoader(), targetClassName, intent);
           activity.setIntent(intent);
-          // 替换Activity的Resources
-          Reflector.QuietReflector.with(activity).field("mResources")
-              .set(loadedPlugin.getResources());
+          // 替换插件Activity的Resources，如果不替换，插件会找不到资源
+          Reflector.QuietReflector.with(activity).field("mResources").set(loadedPlugin.getResources());
           return activity;
         }
       }

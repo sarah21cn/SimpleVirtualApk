@@ -1,4 +1,4 @@
-package com.ys.simple.corelibrary.activity;
+package com.ys.simple.corelibrary.delegate;
 
 import android.app.Activity;
 import android.os.Bundle;

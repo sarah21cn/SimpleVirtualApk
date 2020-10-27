@@ -179,6 +179,13 @@ public class PluginManager {
     return null;
   }
 
+  public ResolveInfo resolveService(Intent intent){
+//    for(LoadedPlugin loadedPlugin : mPlugins.values()){
+//      ResolveInfo resolveInfo
+//    }
+    return null;
+  }
+
   public interface Callback{
     void onAddedLoadedPlugin(LoadedPlugin plugin);
   }

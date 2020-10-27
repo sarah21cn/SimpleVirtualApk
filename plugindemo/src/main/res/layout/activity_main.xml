@@ -26,6 +26,14 @@
     android:layout_marginTop="30dp"
     android:text="跳转插件下一个Activity"/>
 
+  <Button
+    android:id="@+id/service_btn"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    app:layout_constraintTop_toBottomOf="@id/second_btn"
+    android:layout_marginTop="30dp"
+    android:text="启动service"/>
+
 <!--  <ImageView-->
 <!--    android:layout_width="wrap_content"-->
 <!--    android:layout_height="wrap_content"-->

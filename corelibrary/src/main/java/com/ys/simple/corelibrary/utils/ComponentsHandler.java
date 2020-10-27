@@ -8,7 +8,7 @@ import android.content.pm.ResolveInfo;
 import android.util.Log;
 
 import com.ys.simple.corelibrary.PluginManager;
-import com.ys.simple.corelibrary.activity.StubActivity;
+import com.ys.simple.corelibrary.delegate.StubActivity;
 import com.ys.simple.corelibrary.plugin.LoadedPlugin;
 import com.ys.simple.corelibrary.plugin.StubActivityInfo;
 
