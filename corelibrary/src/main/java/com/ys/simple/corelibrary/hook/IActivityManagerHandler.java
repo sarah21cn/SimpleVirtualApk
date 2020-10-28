@@ -36,7 +36,7 @@ public class IActivityManagerHandler implements InvocationHandler {
       hookStartActivity(args);
       return method.invoke(mBase, args);
     }else if("startService".equals(method.getName())){
-
+      // 将所有的操作进行拦截，都改为startService，然后统一在onStartCommond中分发
     }
 
     return method.invoke(mBase, args);

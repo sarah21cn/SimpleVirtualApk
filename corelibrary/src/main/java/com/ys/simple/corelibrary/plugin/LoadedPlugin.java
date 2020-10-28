@@ -9,6 +9,7 @@ import java.util.Map;
 
 import android.app.Application;
 import android.app.Instrumentation;
+import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.ContentResolver;
 import android.content.Context;
@@ -87,6 +88,21 @@ public class LoadedPlugin {
     this.mPackageInfo.activities = activityInfos.values().toArray(new ActivityInfo[activityInfos.size()]);
 
     // ...
+
+    // BroadcastReceiver静态转动态，将插件的静态receiver注册到host中
+    Map<ComponentName, ActivityInfo> receivers = new HashMap<>();
+    for(PackageParser.Activity receiver : this.mPackage.receivers){
+      receivers.put(receiver.getComponentName(), receiver.info);
+
+      // 类型转换
+      BroadcastReceiver br = BroadcastReceiver.class.cast(getClassLoader().loadClass(receiver.getComponentName().getClassName()).newInstance());
+      // 问题：显式broadcast如何动态注册？?
+      for(PackageParser.ActivityIntentInfo aii : receiver.intents){
+        mHostContext.registerReceiver(br, aii);
+      }
+    }
+    this.mReceiverInfos = Collections.unmodifiableMap(receivers);
+    this.mPackageInfo.receivers = receivers.values().toArray(new ActivityInfo[receivers.size()]);
 
     // invokeApplication();
   }

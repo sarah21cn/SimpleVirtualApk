@@ -18,6 +18,12 @@
 
     <activity android:name=".SecondActivity"
       android:launchMode="singleInstance"/>
+
+    <receiver android:name=".MySimpleReceiver" >
+      <intent-filter>
+        <action android:name="com.ys.broadcast"/>
+      </intent-filter>
+    </receiver>
   </application>
 
 </manifest>
