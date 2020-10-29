@@ -6,6 +6,8 @@ import android.app.Instrumentation;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.os.Bundle;
+import android.os.PersistableBundle;
 import android.util.Log;
 
 import com.ys.simple.corelibrary.PluginManager;
@@ -99,5 +101,21 @@ public class VAInstrumentation extends Instrumentation {
     return mBase.newApplication(cl, className, context);
   }
 
+  @Override
+  public void callActivityOnCreate(Activity activity, Bundle icicle) {
+    injectActivity(activity);
+    super.callActivityOnCreate(activity, icicle);
+  }
 
+  @Override
+  public void callActivityOnCreate(Activity activity, Bundle icicle,
+      PersistableBundle persistentState) {
+    injectActivity(activity);
+    super.callActivityOnCreate(activity, icicle, persistentState);
+  }
+
+  protected void injectActivity(Activity activity){
+    // 如果是插件Activity，需要设置Resource Context Application为插件的参数
+    // TODO: 2020/10/29  
+  }
 }

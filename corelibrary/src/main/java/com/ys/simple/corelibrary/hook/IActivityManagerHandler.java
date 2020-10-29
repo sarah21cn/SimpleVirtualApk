@@ -2,6 +2,7 @@ package com.ys.simple.corelibrary.hook;
 
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
+import java.lang.reflect.Proxy;
 
 import android.content.ComponentName;
 import android.content.Intent;
@@ -22,9 +23,14 @@ public class IActivityManagerHandler implements InvocationHandler {
   PluginManager mPluginManager;
   Object mBase;
 
-  public IActivityManagerHandler(PluginManager pluginManager, Object base) {
+  private IActivityManagerHandler(PluginManager pluginManager, Object base) {
     this.mPluginManager = pluginManager;
     this.mBase = base;
+  }
+
+  public static Object newInstance(PluginManager pluginManager, Object amsObj){
+    return Proxy.newProxyInstance(Thread.currentThread().getContextClassLoader(),
+        amsObj.getClass().getInterfaces(), new IActivityManagerHandler(pluginManager, amsObj));
   }
 
   @Override

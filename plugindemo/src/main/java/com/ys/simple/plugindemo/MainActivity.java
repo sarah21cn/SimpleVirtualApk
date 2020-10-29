@@ -3,12 +3,18 @@ package com.ys.simple.plugindemo;
 import androidx.appcompat.app.AppCompatActivity;
 import android.app.Activity;
 import android.content.ComponentName;
+import android.content.ContentResolver;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.database.Cursor;
+import android.net.Uri;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 
 public class MainActivity extends Activity {
+
+  private static final String TAG = "MainActivity";
 
   private static final String BROADCAST_ACTION = "com.ys.broadcast";
 
@@ -31,6 +37,22 @@ public class MainActivity extends Activity {
       @Override
       public void onClick(View v) {
         sendBroadcast();
+      }
+    });
+
+    findViewById(R.id.content_btn).setOnClickListener(new View.OnClickListener() {
+      @Override
+      public void onClick(View v) {
+        ContentResolver contentResolver = getContentResolver();
+        Uri uri = Uri.parse("content://com.ys.plugin/");
+        Cursor cursor = contentResolver.query(uri, null, null, null);
+        if(cursor == null){
+          return;
+        }
+        while (cursor.moveToNext()){
+          Log.d(TAG, "id:" + cursor.getLong(0) + " grade:" + cursor.getInt(1));
+        }
+        cursor.close();
       }
     });
 

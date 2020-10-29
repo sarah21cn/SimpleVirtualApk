@@ -24,6 +24,10 @@
         <action android:name="com.ys.broadcast"/>
       </intent-filter>
     </receiver>
+
+    <provider
+      android:authorities="com.ys.plugin"
+      android:name=".PluginContentProvider"/>
   </application>
 
 </manifest>

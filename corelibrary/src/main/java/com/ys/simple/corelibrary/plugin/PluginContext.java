@@ -23,11 +23,16 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.res.AssetManager;
 import android.content.res.Resources;
+import android.util.Log;
+
+import com.ys.simple.corelibrary.delegate.PluginContentResolver;
 
 /**
  * Created by renyugang on 16/8/12.
  */
 class PluginContext extends ContextWrapper {
+
+    private static final String TAG = "PluginContext";
 
     private final LoadedPlugin mPlugin;
 
@@ -55,10 +60,11 @@ class PluginContext extends ContextWrapper {
         return getBaseContext();
     }
 
-//    @Override
-//    public ContentResolver getContentResolver() {
-//        return new PluginContentResolver(getHostContext());
-//    }
+    @Override
+    public ContentResolver getContentResolver() {
+        Log.d(TAG, "getContentResolver");
+        return new PluginContentResolver(getHostContext());
+    }
 //
 //    @Override
 //    public ClassLoader getClassLoader() {

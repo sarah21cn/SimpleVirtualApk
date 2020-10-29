@@ -41,12 +41,8 @@ android.applicationVariants.all { variant ->
             println "install failed"
         }
     }
-
-    variant.outputs.each { output ->
-
-    }
-
 }
+
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])

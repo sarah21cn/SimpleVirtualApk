@@ -39,6 +39,14 @@
     <activity android:exported="false" android:name=".D$6" android:launchMode="singleInstance"/>
     <activity android:exported="false" android:name=".D$7" android:launchMode="singleInstance"/>
     <activity android:exported="false" android:name=".D$8" android:launchMode="singleInstance"/>
+
+    <service android:name=".delegate.LocalService"/>
+
+    <service android:name=".delegate.RemoteService" android:process=":daemon"/>
+
+    <provider
+      android:name=".delegate.RemoteContentProvider"
+      android:authorities="${applicationId}.provider"/>
     
   </application>
   
